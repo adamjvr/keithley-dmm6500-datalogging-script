@@ -13,8 +13,7 @@ csv_file = input("Enter CSV file name (without extension): ")  # Wait for user i
 csv_file += ".csv"  # Add the file extension
 
 # Set up CSV file for data recording
-# CSV header includes the measurement mode and its unit obtained using the measure_units method
-csv_header = ['Time', f'{measurement_mode.capitalize()} ({dmm.measure_units(measurement_mode)})']
+csv_header = ['Timestamp', f'{measurement_mode.capitalize()} ({dmm.measure_units(measurement_mode)})']
 with open(csv_file, 'w', newline='') as file:  # Open the CSV file in write mode
     writer = csv.writer(file)  # Create CSV writer object
     writer.writerow(csv_header)  # Write the header row to the CSV file
@@ -35,7 +34,7 @@ for i in range(measurement_count):  # Loop for the specified number of measureme
         writer.writerow(data_row)  # Write the data row to the CSV file
     
     # Print the measurement along with the measurement unit
-    print(f"Measurement {i+1}/{measurement_count}: {measurement} {dmm.measure_units(measurement_mode)}")
+    print(f"Measurement {i+1}/{measurement_count}: {timestamp}: {measurement} {dmm.measure_units(measurement_mode)}")
     
     time.sleep(measurement_interval)  # Wait for the specified interval between measurements
 
