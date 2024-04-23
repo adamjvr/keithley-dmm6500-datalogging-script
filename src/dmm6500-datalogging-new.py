@@ -1,6 +1,15 @@
 import csv
 import time
-from DMM6500 import DMM6500  # Importing DMM6500 class directly from DMM6500 module in the same directory
+import pyvisa as visa
+from DMM6500 import DMM6500
+from DMM6500_SCPI import Function
+
+try:
+    rm = visa.ResourceManager()
+    dmm = DMM6500(rm.open_resource('USB0::0x05E6::0x6500::4453860::INSTR'))
+except ValueError:
+    print('Could not connect to the multimeter.')
+    exit(1)
 
 # Prompt user for measurement mode
 measurement_mode = input("Enter measurement mode (e.g., voltage, current, resistance): ")
@@ -10,18 +19,15 @@ csv_file = input("Enter CSV file name (without extension): ")  # Wait for user i
 csv_file += ".csv"  # Add the file extension
 
 try:
-    # Set up connection to the instrument over USB
-    dmm = DMM6500("USB0::0x05E6::0x6500::4453860::INSTR")
+    dmm.reset()
+    dmm.set_function(Function.DC_VOLTAGE)
+    dmm.range = 100000  # certainly too big. Will create error message on screen
 
-    # Print some debugging information to verify the connection
-    print("Connected to the instrument:", dmm)
-
-    # Check if the measure_units() method is implemented correctly
-    measurement_units = dmm.measure_units(measurement_mode)
-    print("Measurement units:", measurement_units)
+    print('Errors:')
+    print(dmm.get_all_errors())
 
     # Set up CSV file for data recording
-    csv_header = ['Timestamp', f'{measurement_mode.capitalize()} ({measurement_units})']
+    csv_header = ['Timestamp', f'{measurement_mode.capitalize()} ({dmm.measure_units(measurement_mode)})']
     with open(csv_file, 'w', newline='') as file:  # Open the CSV file in write mode
         writer = csv.writer(file)  # Create CSV writer object
         writer.writerow(csv_header)  # Write the header row to the CSV file
@@ -42,7 +48,7 @@ try:
             writer.writerow(data_row)  # Write the data row to the CSV file
 
         # Print the measurement along with the measurement unit
-        print(f"Measurement {i + 1}/{measurement_count}: {timestamp}: {measurement} {measurement_units}")
+        print(f"Measurement {i + 1}/{measurement_count}: {timestamp}: {measurement} {dmm.measure_units(measurement_mode)}")
 
         time.sleep(measurement_interval)  # Wait for the specified interval between measurements
 
