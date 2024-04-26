@@ -6,7 +6,7 @@ from DMM6500_SCPI import Function
 
 try:
     rm = visa.ResourceManager()
-    dmm = DMM6500(rm.open_resource('USB0::0x05E6::0x6500::4453860::INSTR'))
+    dmm = DMM6500(rm.open_resource('USB0::0x05E6::0x6500::04453860::INSTR'))
 except ValueError:
     print('Could not connect to the multimeter.')
     exit(1)
