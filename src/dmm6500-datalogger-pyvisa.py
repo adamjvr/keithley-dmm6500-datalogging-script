@@ -2,7 +2,7 @@
 import pyvisa  # Import PyVISA library for communication with instruments
 import csv  # Import CSV module for reading and writing CSV files
 import time  # Import time module for time-related functions
-import argparse  # Import argparse module for parsing command-line arguments
+from tqdm import tqdm  # Import tqdm for displaying progress bars
 import re  # Import re module for regular expressions
 from enum import Enum  # Import Enum class for creating enumeration types
 from typing import Union, Callable  # Import Union and Callable for type hints
@@ -216,6 +216,9 @@ if __name__ == "__main__":
             writer = csv.writer(csvfile)
             writer.writerow(['Timestamp', measurement_type.capitalize()])
 
+        # Initialize tqdm progress bar
+        progress_bar = tqdm(total=num_samples, desc='Progress', unit=' sample', ascii="░▒█")
+
         # Loop to take measurements and record them to the CSV file
         for _ in range(num_samples):
             measurement = do_query(dmm, 'measure', measurement_type, [])
@@ -226,3 +229,5 @@ if __name__ == "__main__":
                     writer.writerow([timestamp, measurement])
                 print(f"{timestamp} - {measurement_type.capitalize()}: {measurement}")
             time.sleep(sample_interval)
+            progress_bar.update(1)  # Update progress bar
+        progress_bar.close()  # Close progress bar
